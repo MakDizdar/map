@@ -1,0 +1,9 @@
+<html>
+<head>
+     <title>mapapp</title>
+</head>
+<body>
+     <h1 align="center">Project Lmap</h1>  
+     <p><b> Datum och tid:</b> {{NOW}}</p>
+</body>
+</html>                      

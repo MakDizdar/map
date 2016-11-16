@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport"content="initial-scale=1.0, user-scalable=no"/>
+        <style type="text/css">
+            html { height: 100% }
+            body { height: 100%; margin: 0; padding: 0 }
+            #map_canvas { height: 94%; width: 95% }
+	    
+        </style>
+	
+        <script type="text/javascript"
+            src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBGIeserCM-KCY3XDRC4fnIIJ_V_1CdM7w&sensor=false">
+        </script>
+        <script type="text/javascript">
+            var map;
+            function initialize() {
+                var mapOptions = {
+                    center: new google.maps.LatLng(58.409512, 15.564368),
+                    zoom: 16,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+
+                map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+	        google.maps.event.addListener(map, 'click', function(event) {
+	        createMarker(map, event.latLng, "Click: "+event.latLng);
+});         
+	    displayMarkers(map);
+            }
+            google.maps.event.addDomListener(window, 'load', initialize);
+            function createMarker(map, latlng, title) {
+            var marker = new google.maps.Marker({	        
+                      map: map,
+                      position: latlng,
+                      title: title
+             });
+	     if (!(document.getElementById("lat1").value) && !(document.getElementById("lng2").value)){
+	     document.getElementById("lat1").value=latlng.lat();
+	     document.getElementById("lng1").value=latlng.lng();
+	     }else if (!(document.getElementById("lat2").value) && !(document.getElementById("lng2").value)){
+             document.getElementById("lat2").value=latlng.lat();
+	     document.getElementById("lng2").value=latlng.lng();
+	    }else {
+	    
+	    }
+            
+	    
+     } 
+
+	    function displayMarkers(map) {
+
+    {% for coord in COORDS %}
+      createMarker(map, new google.maps.LatLng({{coord.lat}},
+                                                 {{coord.lng}}),
+                                                 ""+{{coord.id}});
+
+    {% endfor %}
+
+	    }
+	    function createPolyline(map, path) {
+	      var polyline = new google.maps.Polyline({
+	      path: path,
+	      map: map
+	     });
+	    }
+
+	    function displayRoads(map) {
+	      var points = new google.maps.MVCArray();
+	      alert("beginfor")
+	      {% for node in PATHNODES %}	   
+	      points.push(new google.maps.LatLng({{node.lat}}, {{node.lng}}));
+ 	      {% endfor %}
+	      alert(points)
+	      createPolyline(map, points);
+	    }
+	
+           
+  function mydisplayroad(){
+	     
+	    
+	       displayRoads(map);
+
+            }
+
+    
+        </script>
+ 
+   </head>
+    <body>
+        <div id="map_canvas"></div>
+	<input type="submit" value="Draw PolyLine" onClick="mydisplayroad();">
+	<input type="submit" value="Jump to adress">
+	<input type="submit" value="Place Marker">
+	{% if errMSG %}
+	WAY NOT FOUND!
+	{% else %}
+	DISTANCE: {{DISTANCE}} meters
+	{% endif %}
+	<form id="asd" method="post">
+	  {% csrf_token %} 
+	  <input type="text" id="lat1" name="lat1">
+	  <input type="text" id="lng1" name="lng1">
+	  <input type="text" id="lat2" name="lat2">
+	  <input type="text" id="lng2" name="lng2"> 
+	  
+	  <input type="submit" value="Compute Shortest Path">         
+	</form>
+    </body>
+
+</html>
+
